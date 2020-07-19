@@ -24,7 +24,8 @@ public class DefaultRuleManagementService implements RuleManagementService {
             List<String> actions = new ArrayList<>(rule.getActions());
             actions.add("doc.ctx.alternateRulesMapping.put(\"" + rule.getName() + "\"" + ",\"" + rule.getAlternateFor() + "\")");
             String condition = "doc.ctx.unmatchedRules contains '" + rule.getAlternateFor() + "'";
-            rule.setPriority(100);
+            // Lower the priority of this rule with the primary rule. This is important for the correct firing order.
+            ruleRepository.findByName(rule.getAlternateFor()).ifPresent(r -> rule.setPriority(r.getPriority() + 10));
             rule.setCondition(condition);
             rule.setActions(actions);
         } else if (rule.getRuleType() == RuleType.Override) {
