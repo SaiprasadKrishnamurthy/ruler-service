@@ -26,6 +26,7 @@ public class RuleSet {
     private RuleType ruleSetType = RuleType.Primary;
     private String condition;
     private String alternateFor;
+    private String overrideFor;
     private List<Rule> rules = new ArrayList<>();
     private Map<String, String> metadata = new HashMap<>();
 }

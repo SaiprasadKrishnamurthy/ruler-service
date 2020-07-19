@@ -27,7 +27,6 @@ public class Rule {
     private int priority = 1;
     private RuleType ruleType = RuleType.Primary;
     private String alternateFor;
-    private String restrictionFor;
     private String overrideFor;
     private String condition;
     private List<String> actions = new ArrayList<>();
