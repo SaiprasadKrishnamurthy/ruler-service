@@ -2,7 +2,6 @@ package com.github.saiprasadkrishnamurthy.ruler.service;
 
 import com.github.saiprasadkrishnamurthy.ruler.model.Rule;
 import org.jeasy.rules.support.RuleDefinition;
-import org.jeasy.rules.support.composite.ConditionalRuleGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,8 +27,9 @@ public final class RuleEngineTransformers {
             child.setCondition(rule.getCondition());
             // generic actions.
             List<String> _actions = new ArrayList<>(rule.getActions());
-            _actions.add("doc.ctx.ruleTimestamps.put(\"" + rule.getId() + "\"" + "," + System.currentTimeMillis() + ")");
-            _actions.add("doc.ctx.matchedRules.add(\"" + rule.getId() + "\")");
+            if (_actions.isEmpty()) {
+                _actions.add("1 == 1");
+            }
             child.setActions(_actions);
             root.setComposingRules(Collections.singletonList(child));
             return root;

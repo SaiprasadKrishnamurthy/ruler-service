@@ -83,8 +83,23 @@ public class RulerConfig {
             rule.setLastModified(System.currentTimeMillis());
             rule.setDescription(" Something weired ");
             rule.setEnabled(true);
-            rule.setCondition("doc.payload.active == true");
+            rule.setCondition("doc.payload.active == false");
             rule.setRuleType(RuleType.Primary);
+            ruleManagementService.saveOrUpdateRule(rule);
+            rule = new Rule();
+            rule.setName("my alternate rule for first rule");
+            rule.setAuthor("Sai");
+            rule.setCategory("Cat1");
+            metadata.put("m1", "v1");
+            rule.setMetadata(metadata);
+            rule.setContent(" Content is here");
+            rule.setPriority(1);
+            rule.setCreated(System.currentTimeMillis());
+            rule.setLastModified(System.currentTimeMillis());
+            rule.setDescription(" Something weired ");
+            rule.setEnabled(true);
+            rule.setRuleType(RuleType.Alternate);
+            rule.setAlternateFor("my first rule");
             ruleManagementService.saveOrUpdateRule(rule);
         };
     }

@@ -22,17 +22,14 @@ public class DefaultRuleManagementService implements RuleManagementService {
     public void saveOrUpdateRule(final Rule rule) {
         if (rule.getRuleType() == RuleType.Alternate) {
             List<String> actions = new ArrayList<>(rule.getActions());
-            actions.add("doc.ctx.alternateRulesMapping.put(\"" + rule.getId() + "\"" + ",\"" + rule.getAlternateFor() + "\")");
+            actions.add("doc.ctx.alternateRulesMapping.put(\"" + rule.getName() + "\"" + ",\"" + rule.getAlternateFor() + "\")");
             String condition = "doc.ctx.unmatchedRules contains '" + rule.getAlternateFor() + "'";
+            rule.setPriority(100);
             rule.setCondition(condition);
-            rule.setActions(actions);
-        } else if (rule.getRuleType() == RuleType.Restriction) {
-            List<String> actions = new ArrayList<>(rule.getActions());
-            actions.add("doc.ctx.restrictedRulesMapping.put(\"" + rule.getId() + "\"" + ",\"" + rule.getRestrictionFor() + "\")");
             rule.setActions(actions);
         } else if (rule.getRuleType() == RuleType.Override) {
             List<String> actions = new ArrayList<>(rule.getActions());
-            actions.add("doc.ctx.overrideRulesMapping.put(\"" + rule.getId() + "\"" + ",\"" + rule.getOverrideFor() + "\")");
+            actions.add("doc.ctx.overrideRulesMapping.put(\"" + rule.getName() + "\"" + ",\"" + rule.getOverrideFor() + "\")");
             rule.setActions(actions);
         }
         ruleRepository.save(rule);
