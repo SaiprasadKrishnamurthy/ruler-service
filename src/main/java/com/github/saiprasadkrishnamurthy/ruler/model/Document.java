@@ -11,4 +11,5 @@ import lombok.Data;
 public class Document {
     private RuleEvaluationContext ctx = new RuleEvaluationContext();
     private Object payload;
+    private String precondition;
 }

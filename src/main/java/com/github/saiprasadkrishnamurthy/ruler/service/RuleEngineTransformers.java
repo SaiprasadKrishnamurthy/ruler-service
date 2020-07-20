@@ -1,11 +1,11 @@
 package com.github.saiprasadkrishnamurthy.ruler.service;
 
 import com.github.saiprasadkrishnamurthy.ruler.model.Rule;
+import com.github.saiprasadkrishnamurthy.ruler.model.RuleEvaluationContext;
 import org.jeasy.rules.support.RuleDefinition;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class RuleEngineTransformers {
@@ -33,6 +33,25 @@ public final class RuleEngineTransformers {
             child.setActions(_actions);
             root.setComposingRules(Collections.singletonList(child));
             return root;
+        };
+    }
+
+    public static Consumer<RuleEvaluationContext> applyOverrides() {
+        return ruleEvaluationContext -> {
+            Set<String> matchedRules = ruleEvaluationContext.getMatchedRules();
+            Map<String, String> overrideRulesMapping = ruleEvaluationContext.getOverrideRulesMapping();
+            Map<String, String> alternateRulesMapping = ruleEvaluationContext.getAlternateRulesMapping();
+            overrideRulesMapping.forEach((key, value) -> {
+                if (matchedRules.contains(value)) {
+                    ruleEvaluationContext.getMatchedRules().remove(value);
+                }
+                alternateRulesMapping.forEach((k, v) -> {
+                    if ((value.equals(k) || value.equals(v))) {
+                        matchedRules.remove(v);
+                        matchedRules.remove(k);
+                    }
+                });
+            });
         };
     }
 }

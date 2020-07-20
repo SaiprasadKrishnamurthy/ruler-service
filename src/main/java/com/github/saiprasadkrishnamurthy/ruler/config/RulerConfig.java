@@ -1,5 +1,6 @@
 package com.github.saiprasadkrishnamurthy.ruler.config;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.saiprasadkrishnamurthy.ruler.messaging.RedisRuleStateChangedListener;
 import com.github.saiprasadkrishnamurthy.ruler.model.*;
 import io.lettuce.core.ClientOptions;
@@ -7,6 +8,8 @@ import io.lettuce.core.TimeoutOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -23,6 +26,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class RulerConfig {
@@ -74,7 +78,7 @@ public class RulerConfig {
             rule.setName("my first rule");
             rule.setAuthor("Sai");
             rule.setCategory("Cat1");
-            Map<String, String> metadata = new HashMap<>();
+            Map<String, Object> metadata = new HashMap<>();
             metadata.put("m1", "v1");
             rule.setMetadata(metadata);
             rule.setContent(" Content is here");
@@ -101,7 +105,35 @@ public class RulerConfig {
             rule.setRuleType(RuleType.Alternate);
             rule.setAlternateFor("my first rule");
             ruleManagementService.saveOrUpdateRule(rule);
+            rule = new Rule();
+            rule.setName("my override rule for first rule");
+            rule.setAuthor("Sai");
+            rule.setCategory("Cat1");
+            metadata.put("m1", "v1");
+            rule.setMetadata(metadata);
+            rule.setContent(" Content is here");
+            rule.setPriority(1);
+            rule.setCondition("1 == 1");
+            rule.setCreated(System.currentTimeMillis());
+            rule.setLastModified(System.currentTimeMillis());
+            rule.setDescription(" Somethng weired ");
+            rule.setEnabled(true);
+            rule.setRuleType(RuleType.Override);
+            rule.setOverrideFor("my first rule");
+            ruleManagementService.saveOrUpdateRule(rule);
         };
+    }
+
+    @Bean
+    public Caffeine caffeineConfig() {
+        return Caffeine.newBuilder().expireAfterWrite(365, TimeUnit.DAYS);
+    }
+
+    @Bean
+    public CacheManager cacheManager(final Caffeine caffeine) {
+        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
+        caffeineCacheManager.setCaffeine(caffeine);
+        return caffeineCacheManager;
     }
 
     @Scheduled(fixedDelay = 3000L)
@@ -111,6 +143,15 @@ public class RulerConfig {
         Document doc = new Document();
         doc.setPayload(payload);
         ruleEngine.run(doc, RuleModeType.Preview);
-        System.out.println(" ----- " + doc);
+        System.out.println(" Audit ");
+        System.out.println(" ------------ ");
+        doc.getCtx().getAudits().forEach(ra -> {
+            System.out.println("\t" + ra.getRule().getName() + " (" + ra.isResult() + ")");
+        });
+        System.out.println();
+        System.out.println("Matched Rules:");
+        System.out.println("-------------------");
+        System.out.println("\t" + doc.getCtx().getMatchedRules());
+        System.out.println("\n\n");
     }
 }

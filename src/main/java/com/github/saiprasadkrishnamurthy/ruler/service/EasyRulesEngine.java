@@ -15,8 +15,9 @@ import org.jeasy.rules.support.reader.JsonRuleDefinitionReader;
 import org.springframework.stereotype.Service;
 
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.Collections;
+
+import static com.github.saiprasadkrishnamurthy.ruler.service.RuleEngineTransformers.applyOverrides;
 
 /**
  * Rule engine that uses Easy Rules Engine as the underlying RE.
@@ -31,8 +32,13 @@ public class EasyRulesEngine implements RuleEngine {
     private final Rules LIVE_RULES = new Rules();
     private final DefaultRulesEngine PREVIEW_INSTANCE = new DefaultRulesEngine();
     private final Rules PREVIEW_RULES = new Rules();
+    private final RuleExecListener ruleExecListener;
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    public EasyRulesEngine(final RuleExecListener ruleExecListener) {
+        this.ruleExecListener = ruleExecListener;
+    }
 
     @Override
     public void load(final Rule rule) {
@@ -52,7 +58,7 @@ public class EasyRulesEngine implements RuleEngine {
                 engine = LIVE_INSTANCE;
             }
             if (engine.getRuleListeners().isEmpty()) {
-                engine.registerRuleListener(new RuleExecListener());
+                engine.registerRuleListener(ruleExecListener);
             }
         } catch (Exception ex) {
             log.error("Error while loading rule: " + rule, ex);
@@ -69,5 +75,6 @@ public class EasyRulesEngine implements RuleEngine {
         } else {
             LIVE_INSTANCE.fire(LIVE_RULES, facts);
         }
+        applyOverrides().accept(document.getCtx());
     }
 }

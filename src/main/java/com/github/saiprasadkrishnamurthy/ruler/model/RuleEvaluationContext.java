@@ -13,10 +13,14 @@ import java.util.*;
 public class RuleEvaluationContext {
     private String transactionId = UUID.randomUUID().toString();
     private Set<String> unmatchedRules = new HashSet<>();
+    private Set<String> matchedRules = new HashSet<>();
+    private Set<String> preconditionFailedRules = new HashSet<>();
     private Map<String, String> alternateRulesMapping = new HashMap<>();
     private Map<String, String> overrideRulesMapping = new HashMap<>();
     private Map<String, Object> metadata = new HashMap<>();
+    private Map<String, Object> selectionAttributes = new HashMap<>();
     private List<RuleAudit> audits = new ArrayList<>();
+    private Rule currentRule;
 
     public List<RuleAudit> getAudits() {
         audits.sort(Comparator.comparingLong(RuleAudit::getTimestamp));

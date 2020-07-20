@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -13,7 +14,10 @@ import java.util.*;
  */
 @Document
 @Data
-public class Rule {
+public class Rule implements Serializable {
+
+    private static final long serialVersionUID = 1234567L;
+
     @Id
     private String id = UUID.randomUUID().toString();
     private String name;
@@ -30,6 +34,11 @@ public class Rule {
     private String overrideFor;
     private String condition;
     private List<String> actions = new ArrayList<>();
-    private Map<String, String> metadata = new HashMap<>();
+    private Map<String, Object> metadata = new HashMap<>();
+    private Map<String, Object> selectionAttributes = new HashMap<>();
     private String content = "";
+
+    public String getCondition() {
+        return "com.github.saiprasadkrishnamurthy.ruler.util.Functions.preconditions(doc.ctx, doc.precondition) && (" + condition + ")";
+    }
 }

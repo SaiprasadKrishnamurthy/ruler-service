@@ -2,6 +2,7 @@ package com.github.saiprasadkrishnamurthy.ruler.model;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,10 +10,11 @@ import java.util.Map;
 
 /**
  * A canonical representation of a RuleSet.
+ *
  * @author Sai.
  */
 @Data
-public class RuleSet {
+public class RuleSet implements Serializable {
     private String id;
     private String name;
     private String description;
