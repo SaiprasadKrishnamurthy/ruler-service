@@ -4,21 +4,39 @@ package com.github.saiprasadkrishnamurthy.ruler.rpc;
 
 import "google/protobuf/any.proto";
 
+message RuleAudit {
+   string transactionId = 1;
+   string ruleName = 2;
+   string ruleType = 3;
+   bool result = 4;
+   int64 timestamp = 5;
+}
+message RuleEvaluationContext {
+    string transactionId = 1;
+    repeated string unmatchedRules = 2;
+    repeated string matchedRules = 3;
+    repeated string resultantRules = 4;
+    repeated string preconditionFailedRules = 5;
+    repeated RuleAudit audits = 6;
+}
+
 message RuleExecutionRequest {
     string transactionId = 1;
     map<string,google.protobuf.Any> metadata = 2;
     map<string,google.protobuf.Any> selectionAttributes = 3;
-    google.protobuf.Any payload = 4;
+    string payloadJson = 4;
     enum RuleModeType {
         Live = 0;
         Preview = 1;
       }
     RuleModeType ruleModeType = 5;
+    string precondition = 6;
 }
 
 message RuleExecutionResponse {
     string transactionId = 1;
     map<string, string> ruleNameContentMapping = 2;
+    RuleEvaluationContext context = 3;
 }
 
 service RuleExecutionService {

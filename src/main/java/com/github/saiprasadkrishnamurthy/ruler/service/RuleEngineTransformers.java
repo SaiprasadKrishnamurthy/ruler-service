@@ -38,17 +38,17 @@ public final class RuleEngineTransformers {
 
     public static Consumer<RuleEvaluationContext> applyOverrides() {
         return ruleEvaluationContext -> {
-            Set<String> matchedRules = ruleEvaluationContext.getMatchedRules();
+            Set<String> resultantRules = ruleEvaluationContext.getResultantRules();
             Map<String, String> overrideRulesMapping = ruleEvaluationContext.getOverrideRulesMapping();
             Map<String, String> alternateRulesMapping = ruleEvaluationContext.getAlternateRulesMapping();
             overrideRulesMapping.forEach((key, value) -> {
-                if (matchedRules.contains(value)) {
+                if (resultantRules.contains(value)) {
                     ruleEvaluationContext.getMatchedRules().remove(value);
                 }
                 alternateRulesMapping.forEach((k, v) -> {
                     if ((value.equals(k) || value.equals(v))) {
-                        matchedRules.remove(v);
-                        matchedRules.remove(k);
+                        resultantRules.remove(v);
+                        resultantRules.remove(k);
                     }
                 });
             });

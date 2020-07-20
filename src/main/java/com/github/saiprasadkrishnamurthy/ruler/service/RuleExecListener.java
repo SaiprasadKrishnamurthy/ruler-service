@@ -36,6 +36,7 @@ public class RuleExecListener implements RuleListener {
             ctx.getUnmatchedRules().add(rule.getName());
         } else {
             ctx.getMatchedRules().add(rule.getName());
+            ctx.getResultantRules().add(rule.getName());
         }
     }
 }
