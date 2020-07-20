@@ -36,7 +36,7 @@ public class Rule implements Serializable {
     private List<String> actions = new ArrayList<>();
     private Map<String, Object> metadata = new HashMap<>();
     private Map<String, Object> selectionAttributes = new HashMap<>();
-    private String content = "";
+    private String content = "<span />";
 
     public String getCondition() {
         return "com.github.saiprasadkrishnamurthy.ruler.util.Functions.preconditions(doc.ctx, doc.precondition) && (" + condition + ")";
