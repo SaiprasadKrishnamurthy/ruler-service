@@ -47,7 +47,6 @@ public class RuleExecutionImpl extends RuleExecutionServiceGrpc.RuleExecutionSer
             doc.setPrecondition(request.getPrecondition());
             ctx.setSelectionAttributes(selectionAttrs);
             RuleEvaluationResponse response = ruleOrchestrationService.execute(doc, RuleModeType.valueOf(request.getRuleModeType().name()));
-            System.out.println(" --- " + response);
             List<com.github.saiprasadkrishnamurthy.ruler.rpc.RuleAudit> ras = ctx.getAudits().stream().map(r ->
                     com.github.saiprasadkrishnamurthy.ruler.rpc.RuleAudit.newBuilder()
                             .setResult(r.isResult())
