@@ -13,6 +13,7 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class RulerConfig {
 
     @Autowired
-    private RuleEngine ruleEngine;
+    private RuleOrchestrationService ruleEngine;
 
     @Bean
     public RedisConnectionFactory jedisConnectionFactory(final Environment environment) {
@@ -72,8 +73,9 @@ public class RulerConfig {
     }
 
     @Bean
-    public CommandLineRunner start(final RuleManagementService ruleManagementService) {
+    public CommandLineRunner start(final RuleManagementService ruleManagementService, final MongoTemplate mongoTemplate) {
         return args -> {
+            mongoTemplate.dropCollection(Rule.class);
             Rule rule = new Rule();
             rule.setName("my first rule");
             rule.setAuthor("Sai");
@@ -142,7 +144,7 @@ public class RulerConfig {
         payload.put("active", true);
         Document doc = new Document();
         doc.setPayload(payload);
-        ruleEngine.run(doc, RuleModeType.Preview);
+        RuleEvaluationResponse res = ruleEngine.execute(doc, RuleModeType.Preview);
         System.out.println(" Audit ");
         System.out.println(" ------------ ");
         doc.getCtx().getAudits().forEach(ra -> {
@@ -152,6 +154,16 @@ public class RulerConfig {
         System.out.println("Matched Rules:");
         System.out.println("-------------------");
         System.out.println("\t" + doc.getCtx().getMatchedRules());
+        System.out.println();
+        System.out.println("Responses:");
+        System.out.println("-------------------");
+        res.getRuleNameContentMapping().forEach((k, v) -> {
+            System.out.println("\t\t "+k);
+            System.out.println("\t\t----------------");
+            System.out.println("\t\t"+v);
+        });
         System.out.println("\n\n");
+
+
     }
 }

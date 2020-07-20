@@ -1,6 +1,7 @@
 package com.github.saiprasadkrishnamurthy.ruler.service;
 
 import com.github.saiprasadkrishnamurthy.ruler.model.*;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 /**
  * @author Sai.
  */
+@Service
 public class DefaultRuleOrchestrationService implements RuleOrchestrationService {
 
     private final RuleEngine ruleEngine;
