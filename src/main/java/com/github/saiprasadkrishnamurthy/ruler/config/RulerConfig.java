@@ -138,7 +138,7 @@ public class RulerConfig {
         return caffeineCacheManager;
     }
 
-    @Scheduled(fixedDelay = 3000L)
+//    @Scheduled(fixedDelay = 3000L)
     public void foo() {
         Map<String, Object> payload = new HashMap<>();
         payload.put("active", true);
