@@ -1,10 +1,7 @@
 package com.github.saiprasadkrishnamurthy.ruler.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.saiprasadkrishnamurthy.ruler.model.Document;
-import com.github.saiprasadkrishnamurthy.ruler.model.Rule;
-import com.github.saiprasadkrishnamurthy.ruler.model.RuleEngine;
-import com.github.saiprasadkrishnamurthy.ruler.model.RuleModeType;
+import com.github.saiprasadkrishnamurthy.ruler.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rules;
@@ -44,24 +41,39 @@ public class EasyRulesEngine implements RuleEngine {
     public void load(final Rule rule) {
         try {
             RuleDefinition ruleDefinition = RuleEngineTransformers.transformToEasyRuleDefinition().apply(rule);
-            MVELRuleFactory ruleFactory = new MVELRuleFactory(new JsonRuleDefinitionReader());
-            DefaultRulesEngine engine = null;
-            if (rule.getModeType() == RuleModeType.Preview) {
-                org.jeasy.rules.api.Rule _rule = ruleFactory.createRule(new StringReader(OBJECT_MAPPER.writeValueAsString(Collections.singletonList(ruleDefinition))));
-                PREVIEW_RULES.unregister(_rule);
-                PREVIEW_RULES.register(_rule);
-                engine = PREVIEW_INSTANCE;
-            } else {
-                org.jeasy.rules.api.Rule _rule = ruleFactory.createRule(new StringReader(OBJECT_MAPPER.writeValueAsString(Collections.singletonList(ruleDefinition))));
-                LIVE_RULES.unregister(_rule);
-                LIVE_RULES.register(_rule);
-                engine = LIVE_INSTANCE;
-            }
-            if (engine.getRuleListeners().isEmpty()) {
-                engine.registerRuleListener(ruleExecListener);
-            }
+            load(rule.getModeType(), ruleDefinition);
         } catch (Exception ex) {
             log.error("Error while loading rule: " + rule, ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void load(final RuleModeType ruleModeType, final RuleDefinition ruleDefinition) throws Exception {
+        MVELRuleFactory ruleFactory = new MVELRuleFactory(new JsonRuleDefinitionReader());
+        DefaultRulesEngine engine = null;
+        if (ruleModeType == RuleModeType.Preview) {
+            org.jeasy.rules.api.Rule _rule = ruleFactory.createRule(new StringReader(OBJECT_MAPPER.writeValueAsString(Collections.singletonList(ruleDefinition))));
+            PREVIEW_RULES.unregister(_rule);
+            PREVIEW_RULES.register(_rule);
+            engine = PREVIEW_INSTANCE;
+        } else {
+            org.jeasy.rules.api.Rule _rule = ruleFactory.createRule(new StringReader(OBJECT_MAPPER.writeValueAsString(Collections.singletonList(ruleDefinition))));
+            LIVE_RULES.unregister(_rule);
+            LIVE_RULES.register(_rule);
+            engine = LIVE_INSTANCE;
+        }
+        if (engine.getRuleListeners().isEmpty()) {
+            engine.registerRuleListener(ruleExecListener);
+        }
+    }
+
+    @Override
+    public void load(final RuleSet ruleSet) {
+        try {
+            RuleDefinition ruleDefinition = RuleEngineTransformers.transformToEasyRuleSetDefinition().apply(ruleSet);
+            load(ruleSet.getModeType(), ruleDefinition);
+        } catch (Exception ex) {
+            log.error("Error while loading rule: " + ruleSet, ex);
             throw new RuntimeException(ex);
         }
     }

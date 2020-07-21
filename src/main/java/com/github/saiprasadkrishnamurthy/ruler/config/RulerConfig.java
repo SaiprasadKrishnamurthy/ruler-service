@@ -1,6 +1,7 @@
 package com.github.saiprasadkrishnamurthy.ruler.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.saiprasadkrishnamurthy.ruler.messaging.RedisRuleSetStateChangedListener;
 import com.github.saiprasadkrishnamurthy.ruler.messaging.RedisRuleStateChangedListener;
 import com.github.saiprasadkrishnamurthy.ruler.model.*;
 import io.lettuce.core.ClientOptions;
@@ -22,9 +23,9 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -64,11 +65,13 @@ public class RulerConfig {
     @Bean
     public RedisMessageListenerContainer redisContainer(final RedisConnectionFactory redisConnectionFactory,
                                                         @Value("${ruleStateChangesTopic}") final String topic,
-                                                        final RedisRuleStateChangedListener redisRuleStateChangedListener) {
-        RedisMessageListenerContainer container
-                = new RedisMessageListenerContainer();
+                                                        @Value("${ruleSetStateChangesTopic}") final String ruleSetStateChangesTopic,
+                                                        final RedisRuleStateChangedListener redisRuleStateChangedListener,
+                                                        final RedisRuleSetStateChangedListener redisRuleSetStateChangedListener) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(redisConnectionFactory);
         container.addMessageListener(redisRuleStateChangedListener, new ChannelTopic(topic));
+        container.addMessageListener(redisRuleSetStateChangedListener, new ChannelTopic(ruleSetStateChangesTopic));
         return container;
     }
 
@@ -121,8 +124,34 @@ public class RulerConfig {
             rule.setDescription(" Somethng weired ");
             rule.setEnabled(true);
             rule.setRuleType(RuleType.Override);
-            rule.setOverrideFor("my first rule");
+            rule.setOverrideFor(Collections.singletonList("my first rule"));
             ruleManagementService.saveOrUpdateRule(rule);
+        };
+    }
+
+    @Bean
+    public CommandLineRunner rs(final RuleManagementService ruleManagementService, final MongoTemplate mongoTemplate) {
+        return args -> {
+            mongoTemplate.dropCollection(RuleSet.class);
+            RuleSet rs = new RuleSet();
+            rs.setName(" First Ruleset");
+            SubRule rule = new SubRule();
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("m1", "v1");
+            rule.setContent(" Content is here");
+            rule.setCondition("doc.payload.active == true");
+            rs.getRules().add(rule);
+            rule = new SubRule();
+            rule.setCondition("doc.payload.active == false");
+            metadata.put("m1", "v1");
+            rule.setContent(" Content is here");
+            rs.getRules().add(rule);
+            rule = new SubRule();
+            metadata.put("m1", "v1");
+            rule.setContent(" Content is here");
+            rule.setCondition("1 == 1");
+            rs.getRules().add(rule);
+            ruleManagementService.saveOrUpdateRuleSet(rs);
         };
     }
 
@@ -138,7 +167,7 @@ public class RulerConfig {
         return caffeineCacheManager;
     }
 
-//    @Scheduled(fixedDelay = 3000L)
+    //    @Scheduled(fixedDelay = 3000L)
     public void foo() {
         Map<String, Object> payload = new HashMap<>();
         payload.put("active", true);
@@ -158,9 +187,9 @@ public class RulerConfig {
         System.out.println("Responses:");
         System.out.println("-------------------");
         res.getRuleNameContentMapping().forEach((k, v) -> {
-            System.out.println("\t\t "+k);
+            System.out.println("\t\t " + k);
             System.out.println("\t\t----------------");
-            System.out.println("\t\t"+v);
+            System.out.println("\t\t" + v);
         });
         System.out.println("\n\n");
 

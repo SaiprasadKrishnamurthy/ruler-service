@@ -1,5 +1,5 @@
 package com.github.saiprasadkrishnamurthy.ruler.model;
 
 public interface ResponseRenderer {
-    String render(Rule rule, Object payload);
+    String render(final String ruleName, final String content, Object payload);
 }

@@ -1,6 +1,7 @@
 package com.github.saiprasadkrishnamurthy.ruler.model;
 
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,22 +14,8 @@ import java.util.Map;
  *
  * @author Sai.
  */
+@Document
 @Data
-public class RuleSet implements Serializable {
-    private String id;
-    private String name;
-    private String description;
-    private String author;
-    private String category;
-    private long created;
-    private long lastModified;
-    private boolean enabled;
-    private RuleModeType modeType = RuleModeType.Preview;
-    private int priority = 1;
-    private RuleType ruleSetType = RuleType.Primary;
-    private String condition;
-    private String alternateFor;
-    private String overrideFor;
-    private List<Rule> rules = new ArrayList<>();
-    private Map<String, String> metadata = new HashMap<>();
+public class RuleSet extends BaseRule implements Serializable {
+    private List<SubRule> rules = new ArrayList<>();
 }

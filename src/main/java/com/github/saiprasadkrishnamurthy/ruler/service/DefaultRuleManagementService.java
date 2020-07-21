@@ -2,20 +2,28 @@ package com.github.saiprasadkrishnamurthy.ruler.service;
 
 import com.github.saiprasadkrishnamurthy.ruler.model.*;
 import com.github.saiprasadkrishnamurthy.ruler.repository.RuleRepository;
+import com.github.saiprasadkrishnamurthy.ruler.repository.RuleSetRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Sai.
+ */
 @Service
 public class DefaultRuleManagementService implements RuleManagementService {
 
     private final RuleRepository ruleRepository;
     private final MessagePublisher messagePublisher;
+    private final RuleSetRepository ruleSetRepository;
 
-    public DefaultRuleManagementService(final RuleRepository ruleRepository, final MessagePublisher messagePublisher) {
+    public DefaultRuleManagementService(final RuleRepository ruleRepository,
+                                        final MessagePublisher messagePublisher,
+                                        final RuleSetRepository ruleSetRepository) {
         this.ruleRepository = ruleRepository;
         this.messagePublisher = messagePublisher;
+        this.ruleSetRepository = ruleSetRepository;
     }
 
     @Override
@@ -30,7 +38,7 @@ public class DefaultRuleManagementService implements RuleManagementService {
             rule.setActions(actions);
         } else if (rule.getRuleType() == RuleType.Override) {
             List<String> actions = new ArrayList<>(rule.getActions());
-            actions.add("doc.ctx.overrideRulesMapping.put(\"" + rule.getName() + "\"" + ",\"" + rule.getOverrideFor() + "\")");
+            rule.getOverrideFor().forEach(o -> actions.add("doc.ctx.overrideRulesMapping.put(\"" + rule.getName() + "\"" + ",\"" + o + "\")"));
             rule.setActions(actions);
         }
         ruleRepository.save(rule);
@@ -42,6 +50,17 @@ public class DefaultRuleManagementService implements RuleManagementService {
     }
 
     @Override
-    public void saveOrUpdateRuleSet(RuleSet ruleSet) {
+    public void saveOrUpdateRuleSet(final RuleSet ruleSet) {
+        if (ruleSet.getRuleType() == RuleType.Alternate) {
+            ruleSet.getRules().forEach(r -> r.getActions().add("doc.ctx.alternateRulesMapping.put(\"" + ruleSet.getName() + "\"" + ",\"" + ruleSet.getAlternateFor() + "\")"));
+            String condition = "com.github.saiprasadkrishnamurthy.ruler.util.Functions.preConditionsHasNotFailed(doc.ctx) && doc.ctx.unmatchedRules contains '" + ruleSet.getAlternateFor() + "'";
+            ruleSetRepository.findByName(ruleSet.getAlternateFor()).ifPresent(r -> ruleSet.setPriority(r.getPriority() + 10));
+            ruleSet.getRules().get(0).setCondition(condition);
+        } else if (ruleSet.getRuleType() == RuleType.Override) {
+            ruleSet.getOverrideFor().forEach(o -> ruleSet.getRules().forEach(r -> r.getActions().add("doc.ctx.overrideRulesMapping.put(\"" + ruleSet.getName() + "\"" + ",\"" + o + "\")")));
+        }
+        ruleSetRepository.save(ruleSet);
+        messagePublisher.broadcastRuleSetStateChanges(ruleSet);
+
     }
 }

@@ -3,8 +3,8 @@ package com.github.saiprasadkrishnamurthy.ruler.service;
 import com.github.saiprasadkrishnamurthy.ruler.model.*;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Sai.
@@ -26,9 +26,16 @@ public class DefaultRuleOrchestrationService implements RuleOrchestrationService
     public RuleEvaluationResponse execute(final Document document, final RuleModeType ruleModeType) {
         // Run.
         ruleEngine.run(document, ruleModeType);
-        Map<String, String> responseContents = document.getCtx().getMatchedRules().stream()
-                .map(ruleService::findByName)
-                .collect(Collectors.toMap(Rule::getName, rule -> responseRenderer.render(rule, document.getPayload())));
+        Map<String, String> responseContents = new LinkedHashMap<>();
+        document.getCtx().getResultantRules().forEach(n -> {
+            Rule r = ruleService.findByName(n);
+            if (r == null) {
+                RuleSet ruleSet = ruleService.findRuleSetByName(n);
+                ruleSet.getRules().forEach(sr -> responseContents.put(ruleSet.getName(), responseRenderer.render(ruleSet.getName(), sr.getContent(), document.getPayload())));
+            } else {
+                responseContents.put(r.getName(), responseRenderer.render(r.getName(), r.getContent(), document.getPayload()));
+            }
+        });
         return new RuleEvaluationResponse(document.getCtx().getTransactionId(), document.getCtx(), responseContents);
     }
 }

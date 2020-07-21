@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RuleAudit {
     private String transactionId;
-    private Rule rule;
+    private BaseRule rule;
     private boolean result;
     private long timestamp = System.currentTimeMillis();
 }

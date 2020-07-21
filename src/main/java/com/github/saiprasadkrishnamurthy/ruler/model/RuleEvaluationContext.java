@@ -21,7 +21,7 @@ public class RuleEvaluationContext {
     private Map<String, Object> metadata = new HashMap<>();
     private Map<String, Object> selectionAttributes = new HashMap<>();
     private List<RuleAudit> audits = new ArrayList<>();
-    private Rule currentRule;
+    private BaseRule currentRule;
     private long totalTimeTakenInMillis;
 
     public List<RuleAudit> getAudits() {

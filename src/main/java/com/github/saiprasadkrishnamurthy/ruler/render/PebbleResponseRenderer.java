@@ -1,7 +1,6 @@
 package com.github.saiprasadkrishnamurthy.ruler.render;
 
 import com.github.saiprasadkrishnamurthy.ruler.model.ResponseRenderer;
-import com.github.saiprasadkrishnamurthy.ruler.model.Rule;
 import com.mitchellbosecke.pebble.PebbleEngine;
 import com.mitchellbosecke.pebble.template.PebbleTemplate;
 import lombok.extern.slf4j.Slf4j;
@@ -20,17 +19,17 @@ import java.util.Map;
 public class PebbleResponseRenderer implements ResponseRenderer {
 
     @Override
-    public String render(final Rule rule, final Object payload) {
+    public String render(final String ruleName, final String content, final Object payload) {
         try {
             PebbleEngine engine = new PebbleEngine.Builder().build();
-            PebbleTemplate compiledTemplate = engine.getLiteralTemplate(rule.getContent());
+            PebbleTemplate compiledTemplate = engine.getLiteralTemplate(content);
             Map<String, Object> context = new HashMap<>();
             context.put("doc", payload);
             Writer writer = new StringWriter();
             compiledTemplate.evaluate(writer, context);
             return writer.toString();
         } catch (Exception ex) {
-            log.error(" Error while rendering rule content for: " + rule.getName(), ex);
+            log.error(" Error while rendering rule content for rule: " + ruleName, ex);
             throw new RuntimeException(ex);
         }
     }
