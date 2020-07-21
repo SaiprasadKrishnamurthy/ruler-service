@@ -23,6 +23,7 @@ public class RuleExecListener implements RuleListener {
     public boolean beforeEvaluate(final Rule rule, final Facts facts) {
         Document doc = facts.get("doc");
         RuleEvaluationContext ctx = doc.getCtx();
+        ctx.getStartTimes().put(rule.getName(), System.currentTimeMillis());
         BaseRule r = ruleService.findByName(rule.getName());
         if (r == null) {
             r = ruleService.findRuleSetByName(rule.getName());
@@ -39,7 +40,7 @@ public class RuleExecListener implements RuleListener {
         if (r == null) {
             r = ruleService.findRuleSetByName(rule.getName());
         }
-        RuleAudit ruleAudit = new RuleAudit(ctx.getTransactionId(), r, evaluationResult, System.currentTimeMillis());
+        RuleAudit ruleAudit = new RuleAudit(ctx.getTransactionId(), r, evaluationResult, System.currentTimeMillis(), System.currentTimeMillis() - ctx.getStartTimes().get(rule.getName()));
         ctx.getAudits().add(ruleAudit);
         if (!evaluationResult) {
             ctx.getUnmatchedRules().add(rule.getName());

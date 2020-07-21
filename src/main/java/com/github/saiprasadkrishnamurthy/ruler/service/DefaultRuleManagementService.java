@@ -6,6 +6,7 @@ import com.github.saiprasadkrishnamurthy.ruler.repository.RuleSetRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,14 +52,16 @@ public class DefaultRuleManagementService implements RuleManagementService {
 
     @Override
     public void saveOrUpdateRuleSet(final RuleSet ruleSet) {
+        ruleSet.getRules().forEach(r -> r.setEnabled(ruleSet.isEnabled()));
         if (ruleSet.getRuleType() == RuleType.Alternate) {
             ruleSet.getRules().forEach(r -> r.getActions().add("doc.ctx.alternateRulesMapping.put(\"" + ruleSet.getName() + "\"" + ",\"" + ruleSet.getAlternateFor() + "\")"));
             String condition = "com.github.saiprasadkrishnamurthy.ruler.util.Functions.preConditionsHasNotFailed(doc.ctx) && doc.ctx.unmatchedRules contains '" + ruleSet.getAlternateFor() + "'";
+            ruleSet.getRules().forEach(r -> r.setCondition(condition));
             ruleSetRepository.findByName(ruleSet.getAlternateFor()).ifPresent(r -> ruleSet.setPriority(r.getPriority() + 10));
-            ruleSet.getRules().get(0).setCondition(condition);
         } else if (ruleSet.getRuleType() == RuleType.Override) {
             ruleSet.getOverrideFor().forEach(o -> ruleSet.getRules().forEach(r -> r.getActions().add("doc.ctx.overrideRulesMapping.put(\"" + ruleSet.getName() + "\"" + ",\"" + o + "\")")));
         }
+        ruleSet.getRules().add(0, new SubRule(ruleSet.getCondition(), ruleSet.isEnabled(), Collections.emptyList(), ""));
         ruleSetRepository.save(ruleSet);
         messagePublisher.broadcastRuleSetStateChanges(ruleSet);
 

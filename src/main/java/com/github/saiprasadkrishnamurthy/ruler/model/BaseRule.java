@@ -15,7 +15,7 @@ public abstract class BaseRule {
     private String category;
     private long created;
     private long lastModified;
-    private boolean enabled;
+    private boolean enabled = true;
     private RuleModeType modeType = RuleModeType.Preview;
     private int priority = 1;
     private RuleType ruleType = RuleType.Primary;

@@ -54,6 +54,10 @@ public class RuleExecutionImpl extends RuleExecutionServiceGrpc.RuleExecutionSer
                             .setRuleType(r.getRule().getRuleType().toString())
                             .setTimestamp(r.getTimestamp())
                             .setTransactionId(r.getTransactionId())
+                            .setEnabled(r.getRule().isEnabled())
+                            .setTimeTakenInMillis(r.getTimeTakenInMillis())
+                            .setAlternateFor(r.getRule().getAlternateFor() != null ? r.getRule().getAlternateFor() : "")
+                            .addAllOverrideFor(r.getRule().getOverrideFor())
                             .build()
             ).collect(Collectors.toList());
             RuleExecutionResponse rsp = RuleExecutionResponse.newBuilder()

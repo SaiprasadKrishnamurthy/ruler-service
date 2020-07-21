@@ -20,6 +20,7 @@ public class RuleEvaluationContext {
     private Map<String, String> overrideRulesMapping = new HashMap<>();
     private Map<String, Object> metadata = new HashMap<>();
     private Map<String, Object> selectionAttributes = new HashMap<>();
+    private Map<String, Long> startTimes = new HashMap<>();
     private List<RuleAudit> audits = new ArrayList<>();
     private BaseRule currentRule;
     private long totalTimeTakenInMillis;

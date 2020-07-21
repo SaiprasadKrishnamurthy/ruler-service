@@ -12,4 +12,5 @@ public class RuleAudit {
     private BaseRule rule;
     private boolean result;
     private long timestamp = System.currentTimeMillis();
+    private long timeTakenInMillis;
 }

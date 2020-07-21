@@ -135,6 +135,7 @@ public class RulerConfig {
             mongoTemplate.dropCollection(RuleSet.class);
             RuleSet rs = new RuleSet();
             rs.setName(" First Ruleset");
+            rs.setCondition("1 == 1");
             SubRule rule = new SubRule();
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("m1", "v1");

@@ -1,65 +1,34 @@
 {
-  "transactionId": "04f82896-54c8-4818-b753-816ae885366d",
-  "ruleEvaluationContext": {
-    "transactionId": "04f82896-54c8-4818-b753-816ae885366d",
-    "unmatchedRules": [],
-    "matchedRules": [
-      " First Ruleset"
-    ],
-    "resultantRules": [
-      " First Ruleset"
-    ],
-    "preconditionFailedRules": [],
-    "alternateRulesMapping": {},
-    "overrideRulesMapping": {},
-    "metadata": {},
-    "selectionAttributes": {},
-    "audits": [
-      {
-        "transactionId": "04f82896-54c8-4818-b753-816ae885366d",
-        "rule": null,
-        "result": true,
-        "timestamp": 1595350899400
-      }
-    ],
-    "currentRule": {
-      "id": "724616dd-5d64-49d7-9fce-e1f140d8bc9e",
-      "name": " First Ruleset",
-      "description": null,
-      "author": null,
-      "category": null,
-      "created": 0,
-      "lastModified": 0,
-      "enabled": false,
-      "modeType": "Preview",
-      "priority": 1,
-      "ruleType": "Primary",
-      "condition": null,
-      "alternateFor": null,
-      "overrideFor": [],
-      "metadata": {},
-      "selectionAttributes": {},
-      "rules": [
-        {
-          "condition": "com.github.saiprasadkrishnamurthy.ruler.util.Functions.preconditions(doc.ctx, doc.precondition) && (doc.payload.active == true)",
-          "actions": [],
-          "content": " Content is here"
-        },
-        {
-          "condition": "com.github.saiprasadkrishnamurthy.ruler.util.Functions.preconditions(doc.ctx, doc.precondition) && (doc.payload.active == false)",
-          "actions": [],
-          "content": " Content is here"
-        },
-        {
-          "condition": "com.github.saiprasadkrishnamurthy.ruler.util.Functions.preconditions(doc.ctx, doc.precondition) && (1 == 1)",
-          "actions": [],
-          "content": " Content is here"
-        }
-      ]
+  "id": "5f17168da278f60043dd5553",
+  "name": " First Ruleset",
+  "description": null,
+  "author": null,
+  "category": null,
+  "created": 0,
+  "lastModified": 0,
+  "enabled": false,
+  "modeType": "Preview",
+  "priority": 1,
+  "ruleSetType": "Primary",
+  "condition": "com.github.saiprasadkrishnamurthy.ruler.util.Functions.preconditions(doc.ctx, doc.precondition) && (com.github.saiprasadkrishnamurthy.ruler.util.Functions.preconditions(doc.ctx, doc.precondition) && (null))",
+  "alternateFor": null,
+  "overrideFor": [],
+  "rules": [
+    {
+      "condition": "doc.payload.active == false",
+      "actions": [],
+      "content": " Content is here"
     },
-    "totalTimeTakenInMillis": 0
-  },
-  "ruleNameContentMapping": {
-    " First Ruleset": " Content is here"
-  }
+    {
+      "condition": null,
+      "actions": [],
+      "content": " Content is here"
+    },
+    {
+      "condition": "1 == 1",
+      "actions": [],
+      "content": " Content is here"
+    }
+  ],
+  "metadata": {}
 }

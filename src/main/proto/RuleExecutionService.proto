@@ -10,6 +10,10 @@ message RuleAudit {
    string ruleType = 3;
    bool result = 4;
    int64 timestamp = 5;
+   repeated string overrideFor = 6;
+   string alternateFor = 7;
+   bool enabled = 8;
+   int64 timeTakenInMillis = 9;
 }
 message RuleEvaluationContext {
     string transactionId = 1;
