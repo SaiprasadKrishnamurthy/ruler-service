@@ -1,4 +1,4 @@
-# A Simple Rule Engine as a Service.
+# A Simple/Lightweight/Cloud Native Rule Engine as a Service.
 
 ## Fundamentals:
 
