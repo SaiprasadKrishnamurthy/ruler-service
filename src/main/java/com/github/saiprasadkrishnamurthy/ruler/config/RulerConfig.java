@@ -75,7 +75,7 @@ public class RulerConfig {
         return container;
     }
 
-    @Bean
+//    @Bean
     public CommandLineRunner start(final RuleManagementService ruleManagementService, final MongoTemplate mongoTemplate) {
         return args -> {
             mongoTemplate.dropCollection(Rule.class);
@@ -129,7 +129,7 @@ public class RulerConfig {
         };
     }
 
-    @Bean
+//    @Bean
     public CommandLineRunner rs(final RuleManagementService ruleManagementService, final MongoTemplate mongoTemplate) {
         return args -> {
             mongoTemplate.dropCollection(RuleSet.class);
